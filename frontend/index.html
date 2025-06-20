@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fintech Consent Manager</title>
+  <script>
+    async function login() {
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+      const formData = new URLSearchParams();
+      formData.append("username", username);
+      formData.append("password", password);
+
+      const res = await fetch("/token", {
+        method: "POST",
+        body: formData
+      });
+      const data = await res.json();
+      localStorage.setItem("token", data.access_token);
+      alert("Logged in successfully!");
+    }
+
+    async function submitConsent() {
+      const user_id = document.getElementById("user_id").value;
+      const fields = Array.from(document.querySelectorAll("input[name=field]:checked")).map(i => i.value);
+      const expiration = document.getElementById("expiration").value;
+
+      const body = { user_id, allowed_fields: fields, expiration };
+
+      const res = await fetch("/consent", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        body: JSON.stringify(body)
+      });
+
+      const data = await res.json();
+      alert("Consent submitted: " + JSON.stringify(data));
+    }
+  </script>
+</head>
+<body>
+</html>
